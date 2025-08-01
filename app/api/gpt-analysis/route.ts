@@ -41,14 +41,26 @@ ${JSON.stringify(data, null, 2)}
 
     const result = await completion.json();
 
-const fullText = result.choices?.[0]?.message?.content || 'تعذر توليد التقرير.';
-const weaknessMatch = fullText.match(/نقطة الضعف الرئيسية[:\-]?\s*(.+)/);
-const weakness = weaknessMatch ? weaknessMatch[1].trim() : null;
+    const fullText = result.choices?.[0]?.message?.content || 'تعذر توليد التقرير.';
+    const weaknessMatch = fullText.match(/نقطة الضعف الرئيسية[:\-]?\s*(.+)/);
+    const weakness = weaknessMatch ? weaknessMatch[1].trim() : null;
 
-return NextResponse.json({ analysis: fullText, weakness });
+    // ✅ بناء سيناريوهات ذكية من الورثة
+    let scenarios = [];
+    if (data.heirs && Array.isArray(data.heirs)) {
+      const total = data.heirs.length || 1;
+      const percent = Math.floor(100 / total);
 
+      scenarios = data.heirs.map((heir: any, index: number) => ({
+        label: heir.name || `الوريث ${index + 1}`,
+        percentage: percent,
+        description: `تم تخصيص ${percent}% لهذا الوريث ضمن التحليل`,
+      }));
+    }
+
+    return NextResponse.json({ analysis: fullText, weakness, scenarios });
   } catch (err) {
-    console.error("Error in GPT API:", err);
+    console.error('Error in GPT API:', err);
     return NextResponse.json({ error: 'Failed to fetch GPT result' }, { status: 500 });
   }
 }
