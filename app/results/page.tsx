@@ -8,6 +8,11 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend
 } from 'recharts';
 
+interface HeirData {
+  name: string;
+  value: number;
+}
+
 export default function OutputPage() {
   const [data, setData] = useState<any>(null);
   const [aiReport, setAiReport] = useState<string | null>(null);
@@ -36,7 +41,6 @@ export default function OutputPage() {
 
   if (!data) return <div className="p-10 text-center">جاري تحميل البيانات...</div>;
 
-  // استخراج قيم تقييم المخاطر والجاهزية من الرد الذكي GPT
   const riskMatch = aiReport?.match(/مستوى المخاطر.*?[:\-]\s*(.+)/);
   const readinessMatch = aiReport?.match(/جاهزية الانتقال.*?[:\-]\s*(\d+)/);
 
@@ -46,8 +50,8 @@ export default function OutputPage() {
   const weaknessMatch = aiReport?.match(/نقطة الضعف.*?[:\-]\s*(.+)/);
   const weakness = weaknessMatch ? weaknessMatch[1].trim() : null;
 
-  const pieData = data.heirs?.map((heir: any) => ({
-    name: heir.name || `وريث`,
+  const pieData: HeirData[] = data.heirs?.map((heir: any) => ({
+    name: heir.name || 'وريث',
     value: 1
   })) || [];
 
@@ -115,7 +119,7 @@ export default function OutputPage() {
               <h3 className="font-bold mb-2">توزيع الورثة</h3>
               <PieChart width={300} height={200}>
                 <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
-                  {pieData.map((_, i) => (
+                  {pieData.map((entry, i) => (
                     <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
