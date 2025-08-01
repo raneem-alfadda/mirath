@@ -1,36 +1,31 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import {
+  PieChart, Pie, Cell,
+  BarChart, Bar, XAxis, YAxis, Tooltip, Legend
+} from 'recharts';
 
-interface Scenario {
-  label: string;
-  percentage: number;
-  description: string;
-}
-
-export default function AnalysisResultsPage() {
-  const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [rawText, setRawText] = useState<string | null>(null);
+export default function OutputPage() {
+  const [data, setData] = useState<any>(null);
+  const [aiReport, setAiReport] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const result = localStorage.getItem('analysisResult');
-    if (result) {
-      try {
-        const parsed = JSON.parse(result);
-        const data = parsed.result || parsed;
+    const stored = localStorage.getItem('analysisData');
+    const gptStored = localStorage.getItem('analysisResult');
 
-        if (Array.isArray(data)) {
-          setScenarios(data);
-        } else if (typeof data === 'string') {
-          setRawText(data);
-        } else {
-          console.warn('صيغة غير مدعومة:', data);
-        }
-      } catch (error) {
-        console.error('خطأ في تحليل البيانات:', error);
+    if (stored) setData(JSON.parse(stored));
+    if (gptStored) {
+      try {
+        const parsed = JSON.parse(gptStored);
+        if (typeof parsed === 'string') setAiReport(parsed);
+        else if (typeof parsed.result === 'string') setAiReport(parsed.result);
+        else if (parsed.analysis) setAiReport(parsed.analysis);
+      } catch {
+        console.warn('Failed to parse GPT report');
       }
     }
   }, []);
@@ -39,133 +34,119 @@ export default function AnalysisResultsPage() {
     window.print();
   };
 
-  const goToHome = () => {
-    router.push('/');
-  };
+  if (!data) return <div className="p-10 text-center">جاري تحميل البيانات...</div>;
+
+  // استخراج قيم تقييم المخاطر والجاهزية من الرد الذكي GPT
+  const riskMatch = aiReport?.match(/مستوى المخاطر.*?[:\-]\s*(.+)/);
+  const readinessMatch = aiReport?.match(/جاهزية الانتقال.*?[:\-]\s*(\d+)/);
+
+  const riskScore = riskMatch ? riskMatch[1].trim() : 'غير محدد';
+  const readiness = readinessMatch ? parseInt(readinessMatch[1]) : 0;
+
+  const weaknessMatch = aiReport?.match(/نقطة الضعف.*?[:\-]\s*(.+)/);
+  const weakness = weaknessMatch ? weaknessMatch[1].trim() : null;
+
+  const pieData = data.heirs?.map((heir: any) => ({
+    name: heir.name || `وريث`,
+    value: 1
+  })) || [];
+
+  const barData = [
+    { year: '2021', profit: parseFloat(data.profit2021 || 0) },
+    { year: '2022', profit: parseFloat(data.profit2022 || 0) },
+    { year: '2023', profit: parseFloat(data.annualProfit || 0) },
+  ];
+
+  const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7f50', '#8dd1e1', '#a0d911', '#fa541c'];
 
   return (
-    <div className="bg-[#F1ECEA] min-h-screen font-sans text-right">
-      <header className="bg-white shadow-md p-4 flex justify-between items-center print:flex print:justify-between print:shadow-none">
-        <Image src="/logo12.png" alt="شعار ميراث" width={120} height={40} />
-        <h1 className="text-[#002F3E] text-2xl font-bold">نتائج التحليل</h1>
+    <div className="bg-[#FAF3F0] min-h-screen flex flex-col justify-between font-sans print:bg-white">
+      <header className="py-4 bg-white shadow-md text-center print:hidden">
+        <Image src="/logo12.png" alt="شعار ميراث" width={200} height={40} className="mx-auto" />
       </header>
 
-      {/* المحتوى */}
-      <main className="max-w-5xl mx-auto p-6">
-        <p className="text-[#333] mb-6 leading-relaxed">
-تم إعداد التحليل وفق نموذج ذكي يجمع بين حوكمة الشركات العائلية والتجارب التشغيلية لـ 500 شركة تجاوزت تحديات النمو والاستدامة.
+      <hr className="border-t border-[#002F3E] w-full print:hidden" />
 
-        </p>
+      <main className="max-w-5xl mx-auto space-y-8 px-4 pt-10 pb-28 print:pb-10">
+        <h1 className="text-3xl font-bold text-center text-[#002F3E] print:mt-10 print:text-2xl">
+          التقرير الاستشاري لتحليل انتقال الملكية
+        </h1>
 
-        {scenarios.length > 0 ? (
-          scenarios.map((item, idx) => (
-            <section key={idx} className="mb-8 print:break-inside-avoid">
-              <h2 className="font-bold mb-3 text-lg text-[#002F3E]">{item.label}</h2>
-              <div className="bg-white p-4 rounded-lg shadow-md flex justify-between items-center print:border print:shadow-none print:p-2">
-                <div className="text-center">
-                  <div className="w-24 h-24 rounded-full border-8 border-[#002F3E] flex items-center justify-center text-xl font-bold text-[#002F3E] print:border-4">
-                    %{item.percentage}
-                  </div>
-                  <p className="mt-2 text-sm text-[#666] print:text-xs">نسبة نجاح التحليل</p>
-                </div>
-                <p className="w-3/4 text-[#444] leading-loose bg-[#E4DAD6] p-4 rounded-md print:bg-white print:text-black print:p-2 print:border">
-                  {item.description}
-                </p>
-              </div>
-            </section>
-          ))
-        ) : rawText ? (
-          <div className="bg-white p-6 rounded-md shadow text-[#333] leading-relaxed whitespace-pre-wrap print:text-black print:shadow-none print:p-2">
-            {rawText}
-          </div>
-        ) : (
-          <p className="text-center text-gray-500 mt-10">لا توجد نتائج متاحة حاليًا.</p>
+        {aiReport && (
+          <section className="bg-[#F1ECEA] rounded-xl shadow p-6 space-y-4 leading-loose print:shadow-none print:border print:border-gray-300">
+            <h2 className="text-xl font-semibold text-[#002F3E] border-b pb-2">القسم الأول: التقرير الرسمي</h2>
+            <div className="whitespace-pre-line text-gray-800">{aiReport}</div>
+          </section>
         )}
 
-        {/* التوقيع الرسمي (للطباعة فقط) */}
-        <div className="hidden print:block mt-16 text-[#333]">
-          <div className="flex justify-between items-center">
+        <section className="bg-[#F1ECEA] border border-[#E3D9D6] rounded-xl shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-[#002F3E] border-b pb-2">
+            التحليل المالي باستخدام الذكاء الاصطناعي (نموذج استشاري)
+          </h2>
+
+          <ul className="space-y-2 text-gray-800">
+            <li className="flex items-center gap-2">
+              <span>⚠️</span> مستوى المخاطر في انتقال الملكية: <strong>{riskScore}</strong>
+            </li>
+            <li className="flex items-center gap-2">
+              <span>📊</span> جاهزية الانتقال: {readiness} / 100
+            </li>
+            {weakness && (
+              <li className="flex items-start gap-2">
+                <span>🛑</span>
+                <span>
+                  <strong>نقطة الضعف الرئيسية:</strong><br />
+                  {weakness}
+                </span>
+              </li>
+            )}
+          </ul>
+
+          <div className="w-full bg-gray-200 h-3 rounded mt-2">
+            <div className="h-3 bg-[#C97C5D] rounded" style={{ width: `${readiness}%` }} />
+          </div>
+          <p className="text-sm text-gray-600 mt-1">جاهزية الانتقال: {readiness}%</p>
+        </section>
+
+        <section className="bg-[#F1ECEA] rounded-xl shadow p-6 space-y-4 print:hidden">
+          <h2 className="text-xl font-semibold text-[#002F3E]">القسم الثالث : الواجهة البصرية للتقرير</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <p className="text-base font-semibold">المستشار التنفيذي</p>
-              <p className="mt-2">منصة ميراث لتحليل الشركات العائلية</p>
-              <p className="mt-2">التاريخ: {new Date().toLocaleDateString('ar-EG')}</p>
+              <h3 className="font-bold mb-2">توزيع الورثة</h3>
+              <PieChart width={300} height={200}>
+                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+                  {pieData.map((_, i) => (
+                    <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
             </div>
-            <div className="flex flex-col items-center">
-              <Image src="/sing-logo.png" alt="ختم رسمي" width={100} height={100} />
+            <div>
+              <h3 className="font-bold mb-2">الأرباح السنوية</h3>
+              <BarChart width={300} height={200} data={barData}>
+                <XAxis dataKey="year" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="profit" fill="#C97C5D" />
+              </BarChart>
             </div>
           </div>
+        </section>
+
+        <div className="flex justify-between mt-8 print:hidden">
+          <button onClick={() => router.push('/')} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            العودة للرئيسية
+          </button>
+          <button onClick={handlePrint} className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+            طباعة التقرير
+          </button>
         </div>
       </main>
 
-      {/* الأزرار */}
-      <div className="flex justify-center gap-4 my-8 print:hidden">
-        <button
-          onClick={handlePrint}
-          className="bg-[#002F3E] text-white px-6 py-2 rounded hover:bg-[#01485c] transition"
-        >
-          📄 طباعة التقرير
-        </button>
-        <button
-          onClick={goToHome}
-          className="bg-white border border-[#002F3E] text-[#002F3E] px-6 py-2 rounded hover:bg-gray-100 transition"
-        >
-          ⬅ العودة للرئيسية
-        </button>
-      </div>
-
-      {/* الفوتر */}
-      <footer className="bg-[#022A3C] text-white py-10 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-8 items-start">
-          {/* Contact */}
-          <div>
-            <h4 className="font-bold mb-2">تواصل معنا</h4>
-            <p>8001208000</p>
-            <div className="flex gap-4 mt-2">
-             
-              <a href="https://instagram.com" target="_blank">
-                <Image src="/instagram.png" alt="Instagram" width={16} height={16} />
-              </a>
-              <a href="https://twitter.com" target="_blank">
-                <Image src="/twitter.png" alt="X" width={16} height={16} />
-              </a>
-              <a href="https://linkedin.com" target="_blank">
-                <Image src="/linkedin.png" alt="LinkedIn" width={16} height={16} />
-              </a>
-            </div>
-          </div>
-      
-          {/* Services */}
-          <div>
-            <h4 className="font-bold mb-2">الخدمات</h4>
-            <ul className="space-y-1">
-              <li>تحليل ورثة ذكي</li>
-              <li>مراجعة سيناريوهات التوزيع</li>
-              <li>تقارير نهائية جاهز للطباعة</li>
-            </ul>
-          </div>
-      
-          {/* About */}
-          <div>
-            <h4 className="font-bold mb-2">عن ميراث</h4>
-            <ul className="space-y-1">
-              <li>الرؤية والرسالة</li>
-              <li>الأثر</li>
-              <li>خدمة ذوي الورثة وكبار السن</li>
-              <li>حماية العملاء</li>
-            </ul>
-          </div>
-      
-          {/* Logo on the left */}
-          <div className="flex justify-end sm:justify-start">
-            <Image src="/logo.png" alt="شعار ميراث" width={350} height={5} />
-          </div>
-        </div>
-      
-        {/* Bottom text */}
-        <div className="text-xs text-center mt-8 text-gray-300">
-          مصرف الإنماء | شركة مساهمة سعودية | خاضعة لرقابة وإشراف البنك المركزي السعودي | سجل 1010250808<br />
-          رأس مال 25,000,000,000 ريال | العنوان: الرياض 8/أ حي العليا | الهاتف: 966112185555+ | الفاكس: 966112185555+
-        </div>
+      <footer className="bg-[#002F3E] text-white text-center text-sm py-4 print:hidden">
+        © 2025 منصة ميراث. جميع الحقوق محفوظة.
       </footer>
     </div>
   );

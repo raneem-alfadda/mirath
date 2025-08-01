@@ -6,15 +6,15 @@ import { motion } from 'framer-motion';
 const services = [
   {
     icon: '/icon-inheritance.png',
-    title: 'نموذج ذكي لتقييم الورثة وتوزيع الحصص',
+    title: 'تحليل هيكلي للورثة وربطهم بالكيان التجاري ',
   },
   {
     icon: '/icon-review.png',
-    title: '  اختبر أفضل سيناريو للتوزيع العادل',
+    title: '   تكامل مباشر وآمن مع أنظمة المصرف   ',
   },
   {
     icon: '/icon-report.png',
-    title: '   تقرير جاهز يلخص كل شيء',
+    title: ' اصدار تقارير معتمدة للطباعة والتوثيق  ',
   },
 ];
 
@@ -94,11 +94,17 @@ export default function AboutPage() {
     <p className="text-lg md:text-xl font-medium mb-6 leading-relaxed">
       بتكامل الأجيال واستدامة التنمية، نمضي معًا بطريق المستقبل
     </p>
-    <a href="/analyze">
-      <button className="bg-white text-[#022A3C] px-12 py-5 rounded-lg text-2xl font-bold shadow-md hover:bg-gray-100 transition-all duration-300">
-        ابدأ استشارتك
-      </button>
-    </a>
+<a href="/analyze">
+  <button
+    className="bg-white text-[#022A3C] px-12 py-5 rounded-lg text-2xl font-bold shadow-md 
+               hover:bg-gray-100 hover:scale-105 "
+  >
+    ابدأ استشارتك
+  </button>
+</a>
+
+
+
   </div>
 </section>
 
@@ -108,7 +114,7 @@ export default function AboutPage() {
       {/* Services Section */}
       <section className="bg-[#FAF3F0] py-16 text-center">
         <h2 className="text-2xl font-bold mb-4">   ما الذي تقدمه لك منصة ميراث؟</h2>
-        <p className="text-gray-500 mb-8">تجربة استشارية سهلة، دقيقة، ومبنية على منطق عادل.</p>
+        <p className="text-gray-500 mb-8">تجربة استشارية مالية  سهلة، دقيقة، ومبنية على منطق عادل.</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto px-4">
           {services.map((service, index) => (
@@ -153,9 +159,9 @@ export default function AboutPage() {
     <div>
       <h4 className="font-bold mb-2">الخدمات</h4>
       <ul className="space-y-1">
-        <li>تحليل ورثة ذكي</li>
-        <li>مراجعة سيناريوهات التوزيع</li>
-        <li>تقارير نهائية جاهز للطباعة</li>
+        <li> تحليل الورثة </li>
+        <li>ربط مصرفي   </li>
+        <li>تقارير موثقة   </li>
       </ul>
     </div>
 

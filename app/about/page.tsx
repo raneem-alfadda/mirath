@@ -4,52 +4,52 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const faqs = [
-  { question: 'ما الهدف من منصة ميراث؟', answer: 'المنصة تهدف إلى تسهيل توزيع الإرث التجاري في الشركات العائلية بطريقة عادلة وذكية.' },
-  { question: 'هل تتوافق المنصة مع الشريعة الإسلامية؟', answer: 'نعم، يتم بناء التحليل بناءً على البيانات المدخلة وتوصيات تتوافق مع أحكام الشريعة.' },
-  { question: 'هل يمكن الاعتماد على النتائج قانونيًا؟', answer: 'المنصة تقدم استشارات مساعدة ولا تغني عن الاستشارة القانونية الرسمية.' },
-  { question: 'هل توفر المنصة تقارير قابلة للطباعة؟', answer: 'نعم، يمكن تنزيل التقرير بصيغة PDF بعد التحليل.' },
-  { question: 'هل يمكن استخدام المنصة للأفراد وليس الشركات فقط؟', answer: 'المنصة مخصصة بشكل رئيسي للشركات العائلية، ولكن يمكن تخصيصها للحالات الفردية إذا لزم الأمر.' },
-];
-
 export default function AboutPage() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const toggleFAQ = (index: number) => setOpenIndex(openIndex === index ? null : index);
 
   return (
     <div className="bg-[#F1ECEA] font-sans text-[#333] min-h-screen flex flex-col justify-between">
-      
+
       {/* Header */}
-      <header className="bg-white shadow-md p-6 flex items-center justify-between">
+      <header className="bg-[#E9E4E1] shadow-md p-6 flex flex-col items-center justify-center text-center">
         <Link href="/" className="flex items-center">
           <Image src="/logo12.png" alt="شعار ميراث" width={200} height={50} />
         </Link>
       </header>
 
       {/* تعريف المنصة */}
-      <section className="max-w-6xl mx-auto py-10 px-6 flex flex-col md:flex-row items-center gap-8">
-        <Image src="/logo.png" alt="شعار ميراث" width={400} height={300} />
-        <div className="bg-[#F1ECEA] border border-[#e0dcd9] rounded-xl p-6 w-full shadow-md">
-          <p className="text-lg leading-relaxed text-right">
-            منصة ميراث هي منصة ذكية صممت لدعم العائلات في إدارة وتوزيع الإرث التجاري بعد وفاة المؤسس.
-            تعتمد على تحليل البيانات باستخدام نظام خبير لتقديم سيناريوهات عادلة ومتوازنة تحافظ على استقرار الشركة وحقوق الورثة.
+      <section className="max-w-6xl mx-auto py-10 px-6 text-right">
+        <div className="bg-[#F1ECEA] border border-[#e0dcd9] rounded-xl p-6 w-full shadow-md leading-relaxed">
+          <h2 className="text-2xl font-bold text-[#002F3E] mb-4">منصة ميراث – شراكة استراتيجية مع البنك</h2>
+          <p>
+            منصة ميراث هي مبادرة تقنية متقدمة، طُورت لتكون أداة ذكية داعمة للبنك في معالجة تحديات الإرث التجاري داخل الشركات العائلية.
+            تهدف المنصة إلى تقديم تحليلات احترافية وسيناريوهات توزيع عادلة، مما يتيح للبنك تعزيز دوره الاستشاري، وتقليل النزاعات، وربط التوزيع مباشرة بالخدمات المصرفية.
+            تعتمد المنصة على نظام خبير ونماذج ذكاء اصطناعي متوافقة مع الشريعة، وتُمكن البنك من تفعيل حلول مالية واقعية وقابلة للتنفيذ فوراً.
           </p>
         </div>
       </section>
 
       {/* الأسئلة الشائعة */}
       <section className="max-w-4xl mx-auto py-10 px-6">
-        <h2 className="text-2xl font-bold text-[#002F3E] mb-6 text-right">الأسئلة الشائعة</h2>
-        {faqs.map((faq, index) => (
+        <h2 className="text-2xl font-bold text-[#002F3E] mb-4 border-b-2 w-fit pb-1">الأسئلة الشائعة من الجهات المصرفية</h2>
+        {[
+          { question: 'ما الفائدة الأساسية للبنك من المنصة؟', answer: 'تمكين البنك من تقديم خدمات استشارية ذكية مضافة لعملائه من الشركات العائلية، وتحقيق ربط مباشر مع توزيع التركات عبر الحسابات البنكية.' },
+          { question: 'هل المنصة تدمج مع الأنظمة البنكية بسهولة؟', answer: 'نعم، تم تصميم المنصة لتكون قابلة للتكامل عبر API، وتُتيح تدفقات عمل سلسة داخل البنية التحتية للبنك.' },
+          { question: 'هل التقارير صالحة كمرجع قانوني؟', answer: 'يتم إصدار التقرير بصيغة رسمية، ويمكن استخدامه كدعم استشاري داخل خدمات البنك، مع إمكانية مراجعته من القسم القانوني.' },
+          { question: 'هل النظام متوافق مع الشريعة؟', answer: 'جميع التوصيات تعتمد على قواعد توزيع تتوافق مع أحكام الشريعة الإسلامية في الإرث التجاري.' },
+          { question: 'هل يمكن تفعيل الحسابات البنكية تلقائيًا؟', answer: 'المنصة تدعم ذلك من خلال ربط الورثة مباشرة بحساباتهم، وفق سيناريو التوزيع المعتمد من البنك.' }
+        ].map((faq, index) => (
           <div
             key={index}
             className="mb-4 rounded-xl shadow-sm border border-[#D6D2CD] overflow-hidden bg-white transition-all duration-300"
           >
             <button
               onClick={() => toggleFAQ(index)}
-              className="w-full text-right px-6 py-4 font-semibold text-[#333] hover:bg-[#f8f8f8] transition-all"
+              className="w-full text-right px-6 py-4 font-semibold text-[#333] hover:bg-[#f8f8f8] transition-all flex justify-between items-center"
             >
-              {faq.question}
+              <span>{faq.question}</span>
+              <span className="text-xl">{openIndex === index ? '-' : '+'}</span>
             </button>
             <div
               className={`px-6 bg-[#F9F9F9] text-sm text-[#555] transition-all duration-300 ${
@@ -65,53 +65,32 @@ export default function AboutPage() {
       {/* Footer */}
       <footer className="bg-[#022A3C] text-white py-10 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-4 gap-8 items-start">
-          {/* Contact */}
           <div>
-            <h4 className="font-bold mb-2">تواصل معنا</h4>
-            <p>8001208000</p>
-            <div className="flex gap-4 mt-2">
-              <a href="https://instagram.com" target="_blank">
-                <Image src="/instagram.png" alt="Instagram" width={16} height={16} />
-              </a>
-              <a href="https://twitter.com" target="_blank">
-                <Image src="/twitter.png" alt="X" width={16} height={16} />
-              </a>
-              <a href="https://linkedin.com" target="_blank">
-                <Image src="/linkedin.png" alt="LinkedIn" width={16} height={16} />
-              </a>
-            </div>
+            <h4 className="font-bold mb-2">جهة التواصل التنفيذي</h4>
+            <p>الاسم: وحدة الابتكار – البنك</p>
+            <p>الهاتف: 8001208000</p>
+            <p>البريد الإلكتروني: advisory@bank.sa</p>
           </div>
 
-          {/* Services */}
+      
+
           <div>
-            <h4 className="font-bold mb-2">الخدمات</h4>
+            <h4 className="font-bold mb-2">الامتثال والحوكمة</h4>
             <ul className="space-y-1 text-sm">
-              <li>تحليل ورثة ذكي</li>
-              <li>مراجعة سيناريوهات التوزيع</li>
-              <li>تقارير نهائية جاهز للطباعة</li>
+              <li>متوافق مع أنظمة البنك المركزي</li>
+              <li>خاضع لمراجعة قانونية داخلية</li>
+              <li>يعزز الشفافية وحوكمة الشركات</li>
             </ul>
           </div>
 
-          {/* About */}
-          <div>
-            <h4 className="font-bold mb-2">عن ميراث</h4>
-            <ul className="space-y-1 text-sm">
-              <li>الرؤية والرسالة</li>
-              <li>الأثر</li>
-              <li>خدمة ذوي الورثة وكبار السن</li>
-              <li>حماية العملاء</li>
-            </ul>
-          </div>
-
-          {/* Logo */}
-          <div className="flex justify-end sm:justify-start">
-            <Image src="/logo.png" alt="شعار ميراث" width={350} height={5} />
+          <div className="justify-end sm:justify-start">
+            <Image src="/logo.png" alt="شعار ميراث" width={450} height={5} />
           </div>
         </div>
 
-        <div className="text-xs text-center mt-8 text-gray-300">
+        <div className="text-xs text-center mt-8 text-gray-300 leading-loose">
           مصرف الإنماء | شركة مساهمة سعودية | خاضعة لرقابة وإشراف البنك المركزي السعودي | سجل 1010250808<br />
-          رأس مال 25,000,000,000 ريال | العنوان: الرياض 8/أ حي العليا | الهاتف: 966112185555+ | الفاكس: 966112185555+
+          جميع حقوق النشر محفوظة © 2025 – منصة ميراث بالشراكة مع البنك
         </div>
       </footer>
     </div>
