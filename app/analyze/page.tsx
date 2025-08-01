@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
-// ✅ تعريف نوع الوريث
 type Heir = {
   name: string;
   age: string;
@@ -18,7 +17,6 @@ export default function SmartInputWizardPage() {
   const [loading, setLoading] = useState(false);
   const [showWillUpload, setShowWillUpload] = useState(false);
 
-  // ✅ تعريف formData بشكل صريح
   const [formData, setFormData] = useState<{
     companyType: string;
     capital: string;
@@ -109,6 +107,7 @@ export default function SmartInputWizardPage() {
 
       const result = await res.json();
       if (result?.analysis) {
+        localStorage.setItem('analysisData', JSON.stringify(data)); // ✅ التعديل هنا
         localStorage.setItem('analysisResult', JSON.stringify(result));
         router.push('/results');
       } else {
