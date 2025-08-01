@@ -126,16 +126,7 @@ export default function OutputPage() {
                 <Tooltip />
               </PieChart>
             </div>
-            <div>
-              <h3 className="font-bold mb-2">الأرباح السنوية</h3>
-              <BarChart width={300} height={200} data={barData}>
-                <XAxis dataKey="year" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="profit" fill="#C97C5D" />
-              </BarChart>
-            </div>
+     
           </div>
         </section>
 

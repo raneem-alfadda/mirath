@@ -1,66 +1,44 @@
-import { NextResponse } from 'next/server';
+// /api/gpt-analysis.ts
 
-export async function POST(req: Request) {
-  const { data } = await req.json();
+import { NextRequest, NextResponse } from 'next/server';
+import OpenAI from 'openai';
 
-  const prompt = `
-أنت مستشار مالي. قم بتحليل هذه البيانات باحترافية، وقدم تقريرًا استشاريًا دقيقًا عن الشركة العائلية، يشمل الآتي:
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-- القطاع
-- المؤشرات المالية
-- تقييم الجاهزية للانتقال
-- احتمالية الخطر
-- ملاحظات إدارية
-- توصيات تنفيذية
-
-وفي النهاية أضف فقرة بعنوان:
-"نقطة الضعف الرئيسية:" تتحدث فيها عن أبرز نقطة ضعف تهدد انتقال الملكية بسطرين فقط.
-
-البيانات:
-${JSON.stringify(data, null, 2)}
-
-اكتب التقرير بصيغة رسمية، ومنظمة، وباللغة العربية، وابدأ بعنوان واضح.
-`;
-
+export async function POST(req: NextRequest) {
   try {
-    const completion = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'أنت خبير استشاري في تحليل الشركات العائلية' },
-          { role: 'user', content: prompt },
-        ],
-        temperature: 0.7,
-      }),
+    const { data } = await req.json();
+
+    const prompt = `
+    بناءً على البيانات التالية الخاصة بشركة عائلية وورثتها، قدّم تقريرًا استشاريًا احترافيًا يشمل تحليلًا ماليًا، تقييمًا للوضع الإداري، وتوصيات استراتيجية:
+
+    - نوع الشركة: ${data.companyType}
+    - رأس المال: ${data.capital}
+    - إجمالي الأصول: ${data.totalAssets}
+    - إجمالي الالتزامات: ${data.totalLiabilities}
+    - نسبة هامش الربح: ${data.profitMargin}%
+    - نسبة السيولة: ${data.liquidityRatio}
+    - نسبة المديونية إلى رأس المال: ${data.debtEquity}
+    - ملخص قائمة الدخل: ${data.incomeStatement}
+    - الميزانية العمومية: ${data.balanceSheet}
+    - عدد الورثة: ${data.heirCount}
+    - هل توجد وصية؟: ${data.hasWill}
+    - تفاصيل الورثة:
+    ${data.heirs.map((heir: any, i: number) => `  ${i + 1}. الاسم: ${heir.name} - العمر: ${heir.age} - صلة القرابة: ${heir.relation}`).join('\n')}
+
+    صِغ التقرير بلغة رسمية، واختتمه بتوصيات استراتيجية تراعي استدامة الشركة وعدالة التوزيع.
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [{ role: 'user', content: prompt }],
     });
 
-    const result = await completion.json();
+    const analysis = completion.choices[0].message.content;
 
-    const fullText = result.choices?.[0]?.message?.content || 'تعذر توليد التقرير.';
-    const weaknessMatch = fullText.match(/نقطة الضعف الرئيسية[:\-]?\s*(.+)/);
-    const weakness = weaknessMatch ? weaknessMatch[1].trim() : null;
-
-    // ✅ بناء سيناريوهات ذكية من الورثة
-    let scenarios = [];
-    if (data.heirs && Array.isArray(data.heirs)) {
-      const total = data.heirs.length || 1;
-      const percent = Math.floor(100 / total);
-
-      scenarios = data.heirs.map((heir: any, index: number) => ({
-        label: heir.name || `الوريث ${index + 1}`,
-        percentage: percent,
-        description: `تم تخصيص ${percent}% لهذا الوريث ضمن التحليل`,
-      }));
-    }
-
-    return NextResponse.json({ analysis: fullText, weakness, scenarios });
-  } catch (err) {
-    console.error('Error in GPT API:', err);
-    return NextResponse.json({ error: 'Failed to fetch GPT result' }, { status: 500 });
+    return NextResponse.json({ analysis });
+  } catch (error) {
+    console.error('Error in GPT analysis:', error);
+    return NextResponse.json({ error: 'فشل التحليل' }, { status: 500 });
   }
 }
