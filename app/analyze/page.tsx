@@ -35,6 +35,7 @@ export default function SmartInputWizardPage() {
     incomeStatement: string;
     balanceSheet: string;
     financialQuestionsFile: File | null;
+    companyExcelFile: File | null;
   }>({
     companyType: '',
     capital: '',
@@ -53,6 +54,7 @@ export default function SmartInputWizardPage() {
     incomeStatement: '',
     balanceSheet: '',
     financialQuestionsFile: null,
+    companyExcelFile: null,
   });
 
   const updateHeirCount = (count: number) => {
@@ -60,12 +62,19 @@ export default function SmartInputWizardPage() {
     setFormData({ ...formData, heirCount: count.toString(), heirs });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>, index?: number, field?: keyof Heir) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    index?: number,
+    field?: keyof Heir
+  ) => {
     const { name, value, files } = e.target as HTMLInputElement;
+
     if (name === 'willFile' && files) {
       setFormData({ ...formData, willFile: files[0] });
     } else if (name === 'willExcelFile' && files) {
       setFormData({ ...formData, willExcelFile: files[0] });
+    } else if (name === 'companyExcelFile' && files) {
+      setFormData({ ...formData, companyExcelFile: files[0] });
     } else if (name === 'heirsExcelFile' && files) {
       setFormData({ ...formData, heirsExcelFile: files[0] });
     } else if (name === 'financialQuestionsFile' && files) {
@@ -107,8 +116,8 @@ export default function SmartInputWizardPage() {
 
       const result = await res.json();
       if (result?.analysis) {
-        localStorage.setItem('analysisData', JSON.stringify(data)); // ✅ التعديل هنا
         localStorage.setItem('analysisResult', JSON.stringify(result));
+        localStorage.setItem('analysisData', JSON.stringify(formData));
         router.push('/results');
       } else {
         alert('فشل التحليل. حاول مجددًا.');
@@ -120,6 +129,8 @@ export default function SmartInputWizardPage() {
       setLoading(false);
     }
   };
+
+  const progressPercent = (step / 3) * 100;
 
   const renderBotButton = () => (
     <div className="text-right mt-2">
@@ -134,16 +145,12 @@ export default function SmartInputWizardPage() {
     </div>
   );
 
-  const progressPercent = (step / 3) * 100;
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-[#FBF5F3] to-[#F0EBE9] font-sans">
       <header className="py-4 bg-white shadow-md text-center">
         <Image src="/logo12.png" alt="شعار ميراث" width={100} height={40} className="mx-auto" />
         <h1 className="text-xl font-bold text-[#002F3E] mt-2">نموذج التحليل المالي</h1>
       </header>
-
-      <hr className="border-t border-[#002F3E] w-full" />
 
       <div className="w-full bg-gray-200 h-2">
         <motion.div
@@ -162,6 +169,7 @@ export default function SmartInputWizardPage() {
         >
           <div className="text-center text-sm text-gray-600 mb-2">الخطوة {step} من 3</div>
 
+          {/* ✅ الخطوة 1 */}
           {step === 1 && (
             <div className="space-y-4 bg-white rounded-xl shadow p-4">
               <h2 className="text-lg font-semibold text-[#002F3E] mb-2">🧾 بيانات الشركة الأساسية</h2>
@@ -175,9 +183,10 @@ export default function SmartInputWizardPage() {
             </div>
           )}
 
+          {/* ✅ الخطوة 2 */}
           {step === 2 && (
             <div className="space-y-4 bg-white rounded-xl shadow p-4">
-              <h2 className="text-lg font-semibold text-[#002F3E] mb-2"> بيانات الورثة والوصية</h2>
+              <h2 className="text-lg font-semibold text-[#002F3E] mb-2">بيانات الورثة والوصية</h2>
               <div className="flex items-center gap-2">
                 <button type="button" onClick={() => updateHeirCount(Math.max(0, (+formData.heirCount || 0) - 1))} className="px-3 py-1 bg-[#002F3E] text-white rounded hover:bg-[#01485c]">-</button>
                 <input type="number" name="heirCount" value={formData.heirCount} onChange={(e) => updateHeirCount(+e.target.value)} min="0" className="w-full text-center border p-3 rounded bg-[#F1ECEA]" />
@@ -196,14 +205,13 @@ export default function SmartInputWizardPage() {
                 <option value="لا">لا</option>
               </select>
               {showWillUpload && (
-                <>
-                  <input type="file" name="willExcelFile" onChange={handleChange} className="w-full border p-2 rounded bg-white text-sm" />
-                </>
+                <input type="file" name="willExcelFile" onChange={handleChange} className="w-full border p-2 rounded bg-white text-sm" />
               )}
               {renderBotButton()}
             </div>
           )}
 
+          {/* ✅ الخطوة 3 */}
           {step === 3 && (
             <div className="space-y-4 bg-white rounded-xl shadow p-4">
               <h2 className="text-lg font-semibold text-[#002F3E] mb-2">📂 القوائم المالية وتحليلها</h2>
@@ -219,7 +227,6 @@ export default function SmartInputWizardPage() {
             {step > 1 ? (
               <button onClick={handleBack} className="bg-white border text-[#002F3E] px-4 py-2 rounded hover:bg-gray-100">← رجوع</button>
             ) : <div />}
-
             {step < 3 ? (
               <button onClick={handleNext} className="bg-[#002F3E] text-white px-6 py-2 rounded hover:bg-[#01485c]">التالي →</button>
             ) : (
@@ -237,4 +244,3 @@ export default function SmartInputWizardPage() {
     </div>
   );
 }
-
